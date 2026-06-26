@@ -45,7 +45,7 @@ window.onload = function () {
     msg = document.getElementById("msg");
     log = document.getElementById("log");
 
-    document.getElementById("chat").onsubmit = function () {
+    document.getElementById("form").onsubmit = function () {
         if (!conn) {
             return false;
         }
@@ -102,11 +102,9 @@ body {
 <form id="form">
     <input type="text" id="username" placeholder="username" />
     <input type="text" id="room" placeholder="room" />
-    <button onclick="connect()">接続</button>
-</form>
-<form id="chat">
-    <input type="submit" value="Send" />
+    <button type="button" onclick="connect()">接続</button>
     <input type="text" id="msg" size="64" autofocus />
+    <input type="submit" value="Send" />
 </form>
 </body>
 </html>
