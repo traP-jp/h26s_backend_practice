@@ -4,6 +4,12 @@
 
 package main
 
+// 新しく追加
+type BroadCast struct {
+	message []byte
+	room string
+}
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
@@ -11,7 +17,7 @@ type Hub struct {
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
-	broadcast chan []byte
+	broadcast chan BroadCast
 
 	// Register requests from the clients.
 	register chan *Client
@@ -22,7 +28,7 @@ type Hub struct {
 
 func newHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan BroadCast),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -39,10 +45,14 @@ func (h *Hub) run() {
 				delete(h.clients, client)
 				close(client.send)
 			}
-		case message := <-h.broadcast:
+		case broadcast := <-h.broadcast:
 			for client := range h.clients {
+
+				if client.room != broadcast.room {
+					continue
+				}
 				select {
-				case client.send <- message:
+				case client.send <- broadcast.message:
 				default:
 					close(client.send)
 					delete(h.clients, client)
