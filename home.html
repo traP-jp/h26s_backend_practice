@@ -3,33 +3,24 @@
 <head>
 <title>Chat Example</title>
 <script type="text/javascript">
-window.onload = function () {
-    var conn;
-    var msg = document.getElementById("msg");
-    var log = document.getElementById("log");
 
-    function appendLog(item) {
-        var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-        log.appendChild(item);
-        if (doScroll) {
-            log.scrollTop = log.scrollHeight - log.clientHeight;
-        }
+var conn
+var msg
+var log
+
+function appendLog(item) {
+    var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+    log.appendChild(item);
+    if (doScroll) {
+        log.scrollTop = log.scrollHeight - log.clientHeight;
     }
+}
 
-    document.getElementById("form").onsubmit = function () {
-        if (!conn) {
-            return false;
-        }
-        if (!msg.value) {
-            return false;
-        }
-        conn.send(msg.value);
-        msg.value = "";
-        return false;
-    };
-
+function connect() {
     if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + "/ws");
+        var username = document.getElementById("username").value;
+        var room = document.getElementById("room").value;
+        conn = new WebSocket("ws://" + document.location.host + "/ws?username=" + username + "&room=" + room);
         conn.onclose = function (evt) {
             var item = document.createElement("div");
             item.innerHTML = "<b>Connection closed.</b>";
@@ -48,7 +39,25 @@ window.onload = function () {
         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
         appendLog(item);
     }
+}
+
+window.onload = function () {
+    msg = document.getElementById("msg");
+    log = document.getElementById("log");
+
+    document.getElementById("chat").onsubmit = function () {
+        if (!conn) {
+            return false;
+        }
+        if (!msg.value) {
+            return false;
+        }
+        conn.send(msg.value);
+        msg.value = "";
+        return false;
+    };
 };
+
 </script>
 <style type="text/css">
 html {
@@ -91,6 +100,11 @@ body {
 <body>
 <div id="log"></div>
 <form id="form">
+    <input type="text" id="username" placeholder="username" />
+    <input type="text" id="room" placeholder="room" />
+    <button onclick="connect()">接続</button>
+</form>
+<form id="chat">
     <input type="submit" value="Send" />
     <input type="text" id="msg" size="64" autofocus />
 </form>
